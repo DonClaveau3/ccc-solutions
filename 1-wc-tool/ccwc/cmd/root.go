@@ -1,30 +1,34 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+Copyright © 2024 donclaveau3
 
 */
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
-
+var ByteCount bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "ccwc",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "This is a custom version of wc for a coding challenge",
+	Long: `ccwc is a CLI app that imitates the behavior of wc.
+This application is a solution to a coding challenge found here:
+https://codingchallenges.fyi/challenges/challenge-wc`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+		message := args[0]
+		if ByteCount {
+			message = fmt.Sprintf("bytecount %s", args[0])
+		}
+		fmt.Println(message)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -45,7 +49,5 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.Flags().BoolVarP(&ByteCount, "bytecount", "c", false, "include byte count for file contents")
 }
-
-
