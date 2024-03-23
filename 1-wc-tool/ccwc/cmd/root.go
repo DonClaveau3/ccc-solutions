@@ -5,14 +5,17 @@ Copyright © 2024 donclaveau3
 package cmd
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 
 	"github.com/spf13/cobra"
 )
 
-var ByteCount bool
+var ByteCountRequested bool
+var LineCountRequested bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -27,9 +30,13 @@ https://codingchallenges.fyi/challenges/challenge-wc`,
 	Run: func(cmd *cobra.Command, args []string) {
 		filePath := args[0]
 		message := filePath
-		if ByteCount {
+		if ByteCountRequested {
 			byteCount := calculateBytes(filePath)
 			message = fmt.Sprintf("%s %s", strconv.FormatInt(byteCount, 10), filePath)
+		}
+		if LineCountRequested {
+			lineCount := getLineCount(filePath)
+			message = fmt.Sprintf("%s %s", strconv.Itoa(lineCount), filePath)
 		}
 		fmt.Println(message)
 	},
@@ -45,6 +52,35 @@ func calculateBytes(filePath string) int64 {
 		fmt.Println(err)
 	}
 	return fileInfo.Size()
+}
+
+func getLineCount(filePath string) int {
+	f, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println(err)
+	}
+	c, err := lineCounter(f)
+	return c
+}
+
+// Credit to JimB - https://stackoverflow.com/a/24563853
+func lineCounter(r io.Reader) (int, error) {
+	buf := make([]byte, 32*1024)
+	count := 0
+	lineSep := []byte{'\n'}
+
+	for {
+		c, err := r.Read(buf)
+		count += bytes.Count(buf[:c], lineSep)
+
+		switch {
+		case err == io.EOF:
+			return count, nil
+
+		case err != nil:
+			return count, err
+		}
+	}
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -65,5 +101,6 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolVarP(&ByteCount, "bytecount", "c", false, "include byte count for file contents")
+	rootCmd.Flags().BoolVarP(&ByteCountRequested, "bytecount", "c", false, "include byte count for file contents")
+	rootCmd.Flags().BoolVarP(&LineCountRequested, "linecount", "l", false, "include line count for file contents")
 }
