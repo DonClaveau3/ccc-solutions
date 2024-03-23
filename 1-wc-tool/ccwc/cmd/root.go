@@ -27,10 +27,15 @@ https://codingchallenges.fyi/challenges/challenge-wc`,
 		filePath := args[0]
 		message := filePath
 		if ByteCount {
-			message = fmt.Sprintf("bytecount %s", filePath)
+			byteCount := calculateBytes(filePath)
+			message = fmt.Sprintf("%s %s", byteCount, filePath)
 		}
 		fmt.Println(message)
 	},
+}
+
+func calculateBytes(filePath string) string {
+	return "999"
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
