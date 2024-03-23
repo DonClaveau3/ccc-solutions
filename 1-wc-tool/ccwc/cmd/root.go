@@ -15,7 +15,7 @@ var ByteCount bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "ccwc",
+	Use:   "ccwc [path to file]",
 	Short: "This is a custom version of wc for a coding challenge",
 	Long: `ccwc is a CLI app that imitates the behavior of wc.
 This application is a solution to a coding challenge found here:
