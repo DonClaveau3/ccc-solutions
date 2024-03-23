@@ -7,6 +7,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -28,14 +29,22 @@ https://codingchallenges.fyi/challenges/challenge-wc`,
 		message := filePath
 		if ByteCount {
 			byteCount := calculateBytes(filePath)
-			message = fmt.Sprintf("%s %s", byteCount, filePath)
+			message = fmt.Sprintf("%s %s", strconv.FormatInt(byteCount, 10), filePath)
 		}
 		fmt.Println(message)
 	},
 }
 
-func calculateBytes(filePath string) string {
-	return "999"
+func calculateBytes(filePath string) int64 {
+	f, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fileInfo, err := f.Stat()
+	if err != nil {
+		fmt.Println(err)
+	}
+	return fileInfo.Size()
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
