@@ -20,12 +20,14 @@ var rootCmd = &cobra.Command{
 	Long: `ccwc is a CLI app that imitates the behavior of wc.
 This application is a solution to a coding challenge found here:
 https://codingchallenges.fyi/challenges/challenge-wc`,
+	Args: cobra.MinimumNArgs(1),
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		message := args[0]
+		filePath := args[0]
+		message := filePath
 		if ByteCount {
-			message = fmt.Sprintf("bytecount %s", args[0])
+			message = fmt.Sprintf("bytecount %s", filePath)
 		}
 		fmt.Println(message)
 	},
