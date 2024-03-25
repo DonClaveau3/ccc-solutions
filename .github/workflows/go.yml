@@ -24,9 +24,9 @@ jobs:
     - name: Build
       run: |
         cd 1-wc-tool/ccwc
-        go build -v
+        go build -v ./...
 
     - name: Test
       run: |
         cd 1-wc-tool/ccwc
-        go test -v
+        go test -v ./...
