@@ -33,9 +33,9 @@ func TestWordCount(t *testing.T) {
 }
 
 func TestCharCount(t *testing.T) {
-    // TODO: find a way to set locale during test
+	// TODO: find a way to set locale during test
 	result := getCharCount(testFilePath)
-	expected := int64(339292) // output of wc on my machine
+	expected := 339292 // output of wc on my machine
 	if result != expected {
 		t.Errorf("Expected %d, but got %d", expected, result)
 	}

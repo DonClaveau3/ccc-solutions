@@ -45,17 +45,42 @@ https://codingchallenges.fyi/challenges/challenge-wc`,
 		}
 		if CharCountRequested {
 			charCount := getCharCount(filePath)
-			message = fmt.Sprintf("%s %s", strconv.FormatInt(charCount, 10), filePath)
+			message = fmt.Sprintf("%s %s", strconv.Itoa(charCount), filePath)
 		}
 		fmt.Println(message)
 	},
 }
 
-func getCharCount(filePath string) int64 {
-	// provisional solution - works for SBCS; fails for DBCS, MBCS
-	// https://learn.microsoft.com/en-us/globalization/reference/glossary#dbcs
-	// TODO: learn how to sense locale and char set here
-	return calculateBytes(filePath)
+func getCharCount(filePath string) int {
+	f, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println(err)
+	}
+	c, err := charCounter(f)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return c
+}
+
+func charCounter(r io.Reader) (int, error) {
+	buf := make([]byte, 32*1024)
+	count := 0
+	sep := []byte("")
+
+	for {
+		c, err := r.Read(buf)
+		count += bytes.Count(buf[:c], sep) // "1 + number of Unicode code points" https://golangdoc.github.io/pkg/1.8/bytes/index.html#example_Count
+		count -= 1
+		switch {
+		case err == io.EOF:
+			return count, nil
+
+		case err != nil:
+			return count, err
+		}
+	}
 }
 
 func calculateBytes(filePath string) int64 {
