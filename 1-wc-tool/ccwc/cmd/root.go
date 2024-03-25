@@ -60,6 +60,10 @@ func getLineCount(filePath string) int {
 		fmt.Println(err)
 	}
 	c, err := lineCounter(f)
+	if err != nil {
+		fmt.Println(err)
+	}
+	
 	return c
 }
 
