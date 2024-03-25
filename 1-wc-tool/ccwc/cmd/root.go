@@ -18,6 +18,7 @@ import (
 var ByteCountRequested bool
 var LineCountRequested bool
 var WordCountRequested bool
+var CharCountRequested bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -42,8 +43,19 @@ https://codingchallenges.fyi/challenges/challenge-wc`,
 			wordCount := getWordCount(filePath)
 			message = fmt.Sprintf("%s %s", strconv.Itoa(wordCount), filePath)
 		}
+		if CharCountRequested {
+			charCount := getCharCount(filePath)
+			message = fmt.Sprintf("%s %s", strconv.FormatInt(charCount, 10), filePath)
+		}
 		fmt.Println(message)
 	},
+}
+
+func getCharCount(filePath string) int64 {
+	// provisional solution - works for SBCS; fails for DBCS, MBCS
+	// https://learn.microsoft.com/en-us/globalization/reference/glossary#dbcs
+	// TODO: learn how to sense locale and char set here
+	return calculateBytes(filePath)
 }
 
 func calculateBytes(filePath string) int64 {
@@ -144,7 +156,8 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolVarP(&ByteCountRequested, "bytecount", "c", false, "include byte count for file contents")
-	rootCmd.Flags().BoolVarP(&LineCountRequested, "linecount", "l", false, "include line count for file contents")
-	rootCmd.Flags().BoolVarP(&WordCountRequested, "wordcount", "w", false, "include word count for file contents")
+	rootCmd.Flags().BoolVarP(&ByteCountRequested, "bytes", "c", false, "print the byte counts")
+	rootCmd.Flags().BoolVarP(&LineCountRequested, "lines", "l", false, "print the newline counts")
+	rootCmd.Flags().BoolVarP(&WordCountRequested, "words", "w", false, "print the word counts")
+	rootCmd.Flags().BoolVarP(&CharCountRequested, "chars", "m", false, "print the character counts")
 }
