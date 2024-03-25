@@ -10,12 +10,14 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"unicode"
 
 	"github.com/spf13/cobra"
 )
 
 var ByteCountRequested bool
 var LineCountRequested bool
+var WordCountRequested bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -25,8 +27,6 @@ var rootCmd = &cobra.Command{
 This application is a solution to a coding challenge found here:
 https://codingchallenges.fyi/challenges/challenge-wc`,
 	Args: cobra.MinimumNArgs(1),
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		filePath := args[0]
 		message := filePath
@@ -37,6 +37,10 @@ https://codingchallenges.fyi/challenges/challenge-wc`,
 		if LineCountRequested {
 			lineCount := getLineCount(filePath)
 			message = fmt.Sprintf("%s %s", strconv.Itoa(lineCount), filePath)
+		}
+		if WordCountRequested {
+			wordCount := getWordCount(filePath)
+			message = fmt.Sprintf("%s %s", strconv.Itoa(wordCount), filePath)
 		}
 		fmt.Println(message)
 	},
@@ -63,7 +67,7 @@ func getLineCount(filePath string) int {
 	if err != nil {
 		fmt.Println(err)
 	}
-	
+
 	return c
 }
 
@@ -87,6 +91,41 @@ func lineCounter(r io.Reader) (int, error) {
 	}
 }
 
+func getWordCount(filePath string) int {
+	f, err := os.Open(filePath)
+	if err != nil {
+		fmt.Println(err)
+	}
+	c, err := wordCounter(f)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return c
+}
+func wordCounter(r io.Reader) (int, error) {
+	buf := make([]byte, 32*1024)
+	count := 0
+	startOfThisIsSpace := false
+	endOfLastWasSpace := true
+	for {
+		c, err := r.Read(buf)
+		count += len(bytes.Fields(bytes.TrimSpace(buf[:c])))
+		startOfThisIsSpace = unicode.IsSpace(rune(buf[0]))
+		if !endOfLastWasSpace && !startOfThisIsSpace {
+			count -= 1 //word was split between buffers and counted twice
+		}
+		switch {
+		case err == io.EOF:
+			return count, nil
+
+		case err != nil:
+			return count, err
+		}
+		endOfLastWasSpace = unicode.IsSpace(rune(buf[c-1]))
+	}
+}
+
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
@@ -107,4 +146,5 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolVarP(&ByteCountRequested, "bytecount", "c", false, "include byte count for file contents")
 	rootCmd.Flags().BoolVarP(&LineCountRequested, "linecount", "l", false, "include line count for file contents")
+	rootCmd.Flags().BoolVarP(&WordCountRequested, "wordcount", "w", false, "include word count for file contents")
 }
