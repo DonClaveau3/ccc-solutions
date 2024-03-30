@@ -31,22 +31,33 @@ https://codingchallenges.fyi/challenges/challenge-wc`,
 	Run: func(cmd *cobra.Command, args []string) {
 		filePath := args[0]
 		message := filePath
+		fmt.Println("no flags?")
+		if !(cmd.Flags().NFlag() > 0) {
+			ByteCountRequested = true
+			LineCountRequested = true
+			WordCountRequested = true
+		}
 		if ByteCountRequested {
 			byteCount := calculateBytes(filePath)
-			message = fmt.Sprintf("%s %s", strconv.FormatInt(byteCount, 10), filePath)
-		}
-		if LineCountRequested {
-			lineCount := getLineCount(filePath)
-			message = fmt.Sprintf("%s %s", strconv.Itoa(lineCount), filePath)
-		}
-		if WordCountRequested {
-			wordCount := getWordCount(filePath)
-			message = fmt.Sprintf("%s %s", strconv.Itoa(wordCount), filePath)
+			message = fmt.Sprintf("%s %s", strconv.FormatInt(byteCount, 10), message)
 		}
 		if CharCountRequested {
 			charCount := getCharCount(filePath)
-			message = fmt.Sprintf("%s %s", strconv.Itoa(charCount), filePath)
+			message = fmt.Sprintf("%s %s", strconv.Itoa(charCount), message)
 		}
+		if WordCountRequested {
+			wordCount := getWordCount(filePath)
+			message = fmt.Sprintf("%s %s", strconv.Itoa(wordCount), message)
+		}
+		if LineCountRequested {
+			lineCount := getLineCount(filePath)
+			lineFmtString := "%s %s"
+			if !(cmd.Flags().NFlag() > 0) {
+				lineFmtString = "  %s  %s"
+			}
+			message = fmt.Sprintf(lineFmtString, strconv.Itoa(lineCount), message)
+		}
+
 		fmt.Println(message)
 	},
 }
