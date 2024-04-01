@@ -1,4 +1,4 @@
-module github.com/donclaveau3/ccc-solutions/1-wc-tool/ccwc
+module github.com/donclaveau3/ccwc
 
 go 1.18
 

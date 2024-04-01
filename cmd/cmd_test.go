@@ -7,11 +7,14 @@ import (
 )
 
 const (
-	testFilePath = "../../test.txt"
+	testFilePath = "../test.txt"
 )
 
 func TestScanForStats(t *testing.T) {
 	f, err := os.Open(testFilePath)
+	if err != nil {
+		fmt.Println(err)
+	}
 	b, c, w, l, err := scanForStats(f)
 	if err != nil {
 		fmt.Println(err)
