@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
 	"testing"
 )
 
@@ -8,35 +10,26 @@ const (
 	testFilePath = "../../test.txt"
 )
 
-func TestCalculateBytes(t *testing.T) {
-	result := calculateBytes(testFilePath)
-	expected := int64(342190)
-	if result != expected {
-		t.Errorf("Expected %d, but got %d", expected, result)
+func TestScanForStats(t *testing.T) {
+	f, err := os.Open(testFilePath)
+	b, c, w, l, err := scanForStats(f)
+	if err != nil {
+		fmt.Println(err)
 	}
-}
-
-func TestLineCount(t *testing.T) {
-	result := getLineCount(testFilePath)
-	expected := 7145
-	if result != expected {
-		t.Errorf("Expected %d, but got %d", expected, result)
+	expected_bytes := 342190
+	if b != expected_bytes {
+		t.Errorf("Bytes: expected %d, but got %d", expected_bytes, b)
 	}
-}
-
-func TestWordCount(t *testing.T) {
-	result := getWordCount(testFilePath)
-	expected := 58164
-	if result != expected {
-		t.Errorf("Expected %d, but got %d", expected, result)
+	expected_chars := 339292
+	if c != expected_chars {
+		t.Errorf("Characters: expected %d, but got %d", expected_chars, c)
 	}
-}
-
-func TestCharCount(t *testing.T) {
-	// TODO: find a way to set locale during test
-	result := getCharCount(testFilePath)
-	expected := 339292 // output of wc on my machine
-	if result != expected {
-		t.Errorf("Expected %d, but got %d", expected, result)
+	expected_words := 58164
+	if w != expected_words {
+		t.Errorf("Words: expected %d, but got %d", expected_words, w)
+	}
+	expected_lines := 7145
+	if l != expected_lines {
+		t.Errorf("Lines: expected %d, but got %d", expected_lines, l)
 	}
 }

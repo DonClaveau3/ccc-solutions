@@ -5,6 +5,7 @@ Copyright © 2024 donclaveau3
 package cmd
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -27,148 +28,81 @@ var rootCmd = &cobra.Command{
 	Long: `ccwc is a CLI app that imitates the behavior of wc.
 This application is a solution to a coding challenge found here:
 https://codingchallenges.fyi/challenges/challenge-wc`,
-	Args: cobra.MinimumNArgs(1),
+	Args: cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		filePath := args[0]
-		message := filePath
-		fmt.Println("no flags?")
+		openFile := os.Stdin
+		message := ""
+		if len(args) > 0 {
+			filePath := args[0]
+			message = filePath
+			f, err := os.Open(filePath)
+			if err != nil {
+				fmt.Println(err)
+			}
+			openFile = f
+		}
+
+		b, c, w, l, err := scanForStats(openFile)
+		if err != nil {
+			fmt.Println(err)
+		}
+
 		if !(cmd.Flags().NFlag() > 0) {
 			ByteCountRequested = true
 			LineCountRequested = true
 			WordCountRequested = true
 		}
+
 		if ByteCountRequested {
-			byteCount := calculateBytes(filePath)
-			message = fmt.Sprintf("%s %s", strconv.FormatInt(byteCount, 10), message)
+			message = fmt.Sprintf("%s %s", strconv.Itoa(b), message)
 		}
 		if CharCountRequested {
-			charCount := getCharCount(filePath)
-			message = fmt.Sprintf("%s %s", strconv.Itoa(charCount), message)
+			message = fmt.Sprintf("%s %s", strconv.Itoa(c), message)
 		}
 		if WordCountRequested {
-			wordCount := getWordCount(filePath)
-			message = fmt.Sprintf("%s %s", strconv.Itoa(wordCount), message)
+			message = fmt.Sprintf("%s %s", strconv.Itoa(w), message)
 		}
 		if LineCountRequested {
-			lineCount := getLineCount(filePath)
 			lineFmtString := "%s %s"
 			if !(cmd.Flags().NFlag() > 0) {
 				lineFmtString = "  %s  %s"
 			}
-			message = fmt.Sprintf(lineFmtString, strconv.Itoa(lineCount), message)
+			message = fmt.Sprintf(lineFmtString, strconv.Itoa(l), message)
 		}
 
 		fmt.Println(message)
 	},
 }
 
-func getCharCount(filePath string) int {
-	f, err := os.Open(filePath)
-	if err != nil {
-		fmt.Println(err)
-	}
-	c, err := charCounter(f)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return c
-}
-
-func charCounter(r io.Reader) (int, error) {
+func scanForStats(file io.Reader) (int, int, int, int, error) {
+	r := bufio.NewReader(file)
 	buf := make([]byte, 32*1024)
-	count := 0
-	sep := []byte("")
-
-	for {
-		c, err := r.Read(buf)
-		count += bytes.Count(buf[:c], sep) // "1 + number of Unicode code points" https://golangdoc.github.io/pkg/1.8/bytes/index.html#example_Count
-		count -= 1
-		switch {
-		case err == io.EOF:
-			return count, nil
-
-		case err != nil:
-			return count, err
-		}
-	}
-}
-
-func calculateBytes(filePath string) int64 {
-	f, err := os.Open(filePath)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fileInfo, err := f.Stat()
-	if err != nil {
-		fmt.Println(err)
-	}
-	return fileInfo.Size()
-}
-
-func getLineCount(filePath string) int {
-	f, err := os.Open(filePath)
-	if err != nil {
-		fmt.Println(err)
-	}
-	c, err := lineCounter(f)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return c
-}
-
-// Credit to JimB - https://stackoverflow.com/a/24563853
-func lineCounter(r io.Reader) (int, error) {
-	buf := make([]byte, 32*1024)
-	count := 0
+	byteCount := 0
+	charCount := 0
+	charSep := []byte("")
+	wordCount := 0
+	startOfThisIsSpace := false
+	endOfLastWasSpace := true
+	lineCount := 0
 	lineSep := []byte{'\n'}
 
 	for {
 		c, err := r.Read(buf)
-		count += bytes.Count(buf[:c], lineSep)
-
-		switch {
-		case err == io.EOF:
-			return count, nil
-
-		case err != nil:
-			return count, err
-		}
-	}
-}
-
-func getWordCount(filePath string) int {
-	f, err := os.Open(filePath)
-	if err != nil {
-		fmt.Println(err)
-	}
-	c, err := wordCounter(f)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return c
-}
-func wordCounter(r io.Reader) (int, error) {
-	buf := make([]byte, 32*1024)
-	count := 0
-	startOfThisIsSpace := false
-	endOfLastWasSpace := true
-	for {
-		c, err := r.Read(buf)
-		count += len(bytes.Fields(bytes.TrimSpace(buf[:c])))
+		byteCount += c
+		charCount += bytes.Count(buf[:c], charSep) // "1 + number of Unicode code points" https://golangdoc.github.io/pkg/1.8/bytes/index.html#example_Count
+		charCount -= 1
+		lineCount += bytes.Count(buf[:c], lineSep) // Credit to JimB - https://stackoverflow.com/a/24563853
+		wordCount += len(bytes.Fields(bytes.TrimSpace(buf[:c])))
 		startOfThisIsSpace = unicode.IsSpace(rune(buf[0]))
 		if !endOfLastWasSpace && !startOfThisIsSpace {
-			count -= 1 //word was split between buffers and counted twice
+			wordCount -= 1 // word was split between buffers and counted twice
 		}
 		switch {
 		case err == io.EOF:
-			return count, nil
+			return byteCount, charCount, wordCount, lineCount, nil
 
 		case err != nil:
-			return count, err
+			return byteCount, charCount, wordCount, lineCount, err
 		}
 		endOfLastWasSpace = unicode.IsSpace(rune(buf[c-1]))
 	}
