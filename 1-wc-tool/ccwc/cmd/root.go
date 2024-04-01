@@ -88,21 +88,22 @@ func scanForStats(file io.Reader) (int, int, int, int, error) {
 
 	for {
 		c, err := r.Read(buf)
-		byteCount += c
-		charCount += bytes.Count(buf[:c], charSep) // "1 + number of Unicode code points" https://golangdoc.github.io/pkg/1.8/bytes/index.html#example_Count
-		charCount -= 1
-		lineCount += bytes.Count(buf[:c], lineSep) // Credit to JimB - https://stackoverflow.com/a/24563853
-		wordCount += len(bytes.Fields(bytes.TrimSpace(buf[:c])))
-		startOfThisIsSpace = unicode.IsSpace(rune(buf[0]))
-		if !endOfLastWasSpace && !startOfThisIsSpace {
-			wordCount -= 1 // word was split between buffers and counted twice
-		}
 		switch {
 		case err == io.EOF:
 			return byteCount, charCount, wordCount, lineCount, nil
 
 		case err != nil:
 			return byteCount, charCount, wordCount, lineCount, err
+		}
+		byteCount += c
+		charCount += bytes.Count(buf[:c], charSep) // "1 + number of Unicode code points" https://golangdoc.github.io/pkg/1.8/bytes/index.html#example_Count
+		charCount -= 1
+		lineCount += bytes.Count(buf[:c], lineSep) // Credit to JimB - https://stackoverflow.com/a/24563853
+		wordCount += len(bytes.Fields(bytes.TrimSpace(buf[:c])))
+		startOfThisIsSpace = unicode.IsSpace(rune(buf[0]))
+		wordWasSplitBetweenBuffers := !endOfLastWasSpace && !startOfThisIsSpace
+		if wordWasSplitBetweenBuffers {
+			wordCount -= 1 // word was counted twice
 		}
 		endOfLastWasSpace = unicode.IsSpace(rune(buf[c-1]))
 	}
