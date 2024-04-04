@@ -78,3 +78,5 @@ Tested against wc (GNU coreutils) 8.32
 
 # Other solutions that use Cobra CLI framework:
 - https://github.com/mquhuy/ccwc
+- https://github.com/brarkaran/ccwc
+- https://github.com/lednhatkhanh/ccwc
