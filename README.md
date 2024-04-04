@@ -2,14 +2,14 @@
 A solution to John Crickett's Coding Challenge
 https://codingchallenges.fyi/challenges/challenge-wc
 
-Install:  
+# Install:  
 ```
 git clone git@github.com:DonClaveau3/ccwc.git
 cd ccwc
 go install
 ```
 
-Examples:  
+# Examples:  
 
 print newline, word, and byte counts for test.txt  
 ```
@@ -41,7 +41,7 @@ Flags:
   -w, --words   print the word counts
 ```
 
-References:  
+# Resources I found helpful:  
 - [Installing WSL](https://learn.microsoft.com/en-us/windows/wsl/install)
 - [Connecting to GitHub w/ SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/testing-your-ssh-connection)
 - [Cobra](https://github.com/spf13/cobra) framework for creating CLIs in Go
@@ -53,11 +53,11 @@ References:
 - [Glossary of globalization concepts](https://learn.microsoft.com/en-us/globalization/reference/glossary)
 
  
-Created during 6 evening sessions (mostly weekends) after putting the kid to bed
 Built on VS Code running in WSL: Ubuntu  
 Tested against wc (GNU coreutils) 8.32  
 
-Personal notes:
+# Personal notes:
+- I created this during 6 evening sessions (mostly weekends) after putting the kid to bed
 - This was my first project in Go. I wanted to try a new language and Go is popular. Some things that stood out:
   - nil instead of null
   - types go after names in declarations (like Typescript)
@@ -75,4 +75,6 @@ Personal notes:
   - What could I learn from reviewing other people's solutions?
 - There were some strange formatting behaviors in the wc tool. For example, sometimes the output would begin with 2 spaces and sometimes with 3 spaces. Why is that? Why are there 2 spaces between newline count and word count in the default output, but only 1 space between every other part? For the sake of this project, I imitated what I saw. But it would be interesting to investigate the source
 - I noticed that the challenge doesn't include all features of wc. Notably missing are the -L flag and multiple file inputs.
-    
+
+# Other solutions that use Cobra CLI framework:
+- https://github.com/mquhuy/ccwc
