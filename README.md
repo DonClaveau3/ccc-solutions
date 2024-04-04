@@ -31,7 +31,7 @@ This application is a solution to a coding challenge found here:
 https://codingchallenges.fyi/challenges/challenge-wc
 
 Usage:
-  ccwc [path to file] [flags]
+  ccwc [flags] [path to file]
 
 Flags:
   -c, --bytes   print the byte counts
@@ -49,7 +49,20 @@ References:
 - [Efficient line count algorithm by JimB](https://stackoverflow.com/a/24563853)
 - [golang unit testing](https://golangdocs.com/golang-unit-testing)
 - [Counting characters](https://golangdoc.github.io/pkg/1.8/bytes/index.html#example_Count)
+- [SBCS vs MBCS](https://learn.microsoft.com/en-us/cpp/c-runtime-library/single-byte-and-multibyte-character-sets?view=msvc-170)
+- [Glossary of globalization concepts](https://learn.microsoft.com/en-us/globalization/reference/glossary)
 
  
-Created using VS Code running in WSL: Ubuntu  
+Created during 6 evening sessions (mostly weekends) after putting the kid to bed
+Built on VS Code running in WSL: Ubuntu  
 Tested against wc (GNU coreutils) 8.32  
+
+Personal notes:
+- This was my first project in Go  
+- This was my first non-school project published to a public repository  
+- I wanted to set up WSL on my Windows PC after reading [DHH's recent endorsement](https://world.hey.com/dhh/vscode-wsl-makes-windows-awesome-for-web-development-9bc4d528). This project provided an opportunity to kick the tires a bit
+- Through the process, I had a few questions that I would like to explore in the future:
+  - What should I know about software licenses?
+  - How do I make a manual entry (```man ccwc```) for an app?
+  - How would I create a test against the built app?
+    
